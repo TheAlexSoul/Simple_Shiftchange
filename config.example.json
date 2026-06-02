@@ -1,0 +1,13 @@
+{
+    "telemost_url": "https://telemost.yandex.ru/j/XXXXXXXXXXXXXXXX",
+    "enable_camera_check": true,
+    "enable_documents": false,
+    "network_base_path": "\\\\server\\share",
+    "reserve_base_path": "\\\\server\\archive",
+    "doklad_keyword": "Доклад",
+    "spravka_keyword": "Справка",
+    "preferred_monitor": 0,
+    "document_subfolder": "Доклады",
+    "main_path_template": "{network_base}\\{year}\\{month} {month_name}\\{search_date_short}\\Доклады",
+    "reserve_path_template": "{reserve_base}\\{year}\\{month} {month_name}"
+}
