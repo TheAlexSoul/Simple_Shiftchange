@@ -143,10 +143,15 @@
 ## 📁 Структура репозитория
 
 ├── main.py # Исходный код программы
+
 ├── requirements.txt # Зависимости Python
+
 ├── config.example.json # Шаблон конфигурации (скопируйте в config.json)
+
 ├── Peresmenca.ico # Иконка приложения
+
 ├── .gitignore
+
 └── README.md
 
 Файл `config.json` (с реальными данными) добавлен в `.gitignore` и в репозиторий не попадает.
