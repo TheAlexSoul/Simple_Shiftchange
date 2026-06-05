@@ -81,7 +81,7 @@ except ImportError:
 #                         ЗАГРУЗКА КОНФИГУРАЦИИ
 # ------------------------------------------------------------------------------
 def load_config():
-    """Загружает настройки из config.json, если он есть. Иначе – значения по умолчанию."""
+    """Загружает настройки из config.json или из файла, переданного через --config."""
     defaults = {
         "telemost_url": DEFAULT_TELEMOST_URL,
         "enable_camera_check": DEFAULT_ENABLE_CAMERA,
@@ -98,13 +98,34 @@ def load_config():
         "show_quick_start_button": DEFAULT_SHOW_QUICK_START_BUTTON
     }
 
-    # Ищем config.json рядом с exe или скриптом
-    if getattr(sys, 'frozen', False):
-        exe_dir = os.path.dirname(sys.executable)
-    else:
-        exe_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(exe_dir, "config.json")
+    # Определяем путь к конфигу
+    # 1. Проверяем аргумент --config
+    config_path = None
+    try:
+        if '--config' in sys.argv:
+            idx = sys.argv.index('--config')
+            if idx + 1 < len(sys.argv):
+                custom_config = sys.argv[idx + 1]
+                # Если путь относительный, делаем его абсолютным от папки с программой
+                if not os.path.isabs(custom_config):
+                    if getattr(sys, 'frozen', False):
+                        base_dir = os.path.dirname(sys.executable)
+                    else:
+                        base_dir = os.path.dirname(os.path.abspath(__file__))
+                    custom_config = os.path.join(base_dir, custom_config)
+                config_path = custom_config
+    except Exception:
+        pass
 
+    # 2. Если --config не задан, ищем config.json рядом с exe или скриптом
+    if not config_path:
+        if getattr(sys, 'frozen', False):
+            exe_dir = os.path.dirname(sys.executable)
+        else:
+            exe_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(exe_dir, "config.json")
+
+    # Остальная часть – полностью ваша оригинальная логика
     if not os.path.exists(config_path):
         # Файла нет – работаем со значениями по умолчанию (всё выключено)
         return defaults
