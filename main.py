@@ -40,6 +40,8 @@ DEFAULT_DOKLAD_KEYWORD = ""
 DEFAULT_SPRAVKA_KEYWORD = ""
 DEFAULT_PREFERRED_MONITOR = 0
 DEFAULT_DOCUMENT_SUBFOLDER = ""
+DEFAULT_SKIP_TESTS = False
+DEFAULT_SHOW_QUICK_START_BUTTON = False
 
 # Тихий тест наушников (менять редко)
 HEADPHONE_VOLUME = 0.2
@@ -91,7 +93,9 @@ def load_config():
         "preferred_monitor": DEFAULT_PREFERRED_MONITOR,
         "document_subfolder": DEFAULT_DOCUMENT_SUBFOLDER,
         "main_path_template": "",
-        "reserve_path_template": ""
+        "reserve_path_template": "",
+        "skip_tests": DEFAULT_SKIP_TESTS,
+        "show_quick_start_button": DEFAULT_SHOW_QUICK_START_BUTTON
     }
 
     # Ищем config.json рядом с exe или скриптом
@@ -162,6 +166,8 @@ PREFERRED_MONITOR = config["preferred_monitor"]
 DOCUMENT_SUBFOLDER = config["document_subfolder"]
 MAIN_PATH_TEMPLATE = config["main_path_template"]
 RESERVE_PATH_TEMPLATE = config["reserve_path_template"]
+SKIP_TESTS = config["skip_tests"]
+SHOW_QUICK_START_BUTTON = config["show_quick_start_button"]
 
 # ------------------------------------------------------------------------------
 #                       ОСНОВНОЙ КЛАСС ПРИЛОЖЕНИЯ
@@ -191,15 +197,23 @@ class ShiftChangeApp:
         self.camera_window_closed = False
         self.camera_thread = None
 
+        if SKIP_TESTS:
+            self.open_browser_and_docs()
+            return
+
         self.show_initial_screen()
 
     # --------------------------------------------------------------------------
     #                         УПРАВЛЕНИЕ ОКНАМИ
     # --------------------------------------------------------------------------
+    
     def clear_window(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
+    def quick_start(self):
+        self.open_browser_and_docs()
+    
     def show_initial_screen(self):
         self.clear_window()
         self.root.title("Подготовка к пересменке")
@@ -216,14 +230,26 @@ class ShiftChangeApp:
         )
         label.pack(pady=(40, 30))
 
+        btn_frame = ttk.Frame(main_frame)
+        btn_frame.pack(pady=20)
+
         self.btn_continue = ttk.Button(
-            main_frame,
+            btn_frame,
             text="Продолжить",
             command=self.check_devices_and_proceed,
             style="Accent.TButton"
         )
-        self.btn_continue.pack(pady=20)
+        self.btn_continue.pack(side=tk.LEFT, padx=10)
 
+        if SHOW_QUICK_START_BUTTON and not SKIP_TESTS:
+            self.btn_quick = ttk.Button(
+                btn_frame,
+                text="⚡ Быстрый старт",
+                command=self.quick_start,
+                style="Accent.TButton"
+            )
+            self.btn_quick.pack(side=tk.LEFT, padx=10)
+                
         style = ttk.Style()
         style.configure("Accent.TButton", font=("Segoe UI", 12, "bold"), padding=10)
         self.root.after(100, self._bring_to_front)
@@ -237,7 +263,10 @@ class ShiftChangeApp:
         winsound.MessageBeep(winsound.MB_ICONINFORMATION)
 
     def check_devices_and_proceed(self):
-        self.show_main_menu()
+        if SKIP_TESTS:
+            self.open_browser_and_docs()
+        else:
+            self.show_main_menu()
 
     def show_main_menu(self):
         self.clear_window()
@@ -662,11 +691,17 @@ class ShiftChangeApp:
         # Открываем файлы в Word
         files_to_open = []
         if doklad_file:
-            files_to_open.append(("left", doklad_file))
+            files_to_open.append(doklad_file)
         if spravka_file:
-            files_to_open.append(("right", spravka_file))
+            files_to_open.append(spravka_file)
 
-        for side, path in files_to_open:
+        # Определяем side для каждого файла
+        if len(files_to_open) == 1:
+            sides = ["full"]
+        else:
+            sides = ["left", "right"]
+
+        for path, side in zip(files_to_open, sides):
             try:
                 if WIN32COM_AVAILABLE:
                     word = win32com.client.Dispatch("Word.Application")
@@ -683,7 +718,7 @@ class ShiftChangeApp:
                 messagebox.showerror("Ошибка открытия", f"Не удалось открыть {path}:\n{e}")
 
     def _position_word_window(self, word, side):
-        """Размещает окно Word на левой или правой половине выбранного монитора."""
+        """Размещает окно Word на выбранном мониторе: left/right/full."""
         try:
             import win32gui
             import win32api
@@ -718,15 +753,19 @@ class ShiftChangeApp:
             screen_width = work_area[2] - work_area[0]
             screen_height = work_area[3] - work_area[1]
 
-            half_width = screen_width // 2
-
-            if side == "left":
+            if side == "full":
                 left = screen_left
+                width = screen_width
             else:
-                left = screen_left + half_width
+                half_width = screen_width // 2
+                if side == "left":
+                    left = screen_left
+                else:
+                    left = screen_left + half_width
+                width = half_width
 
             win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-            win32gui.MoveWindow(hwnd, left, screen_top, half_width, screen_height, True)
+            win32gui.MoveWindow(hwnd, left, screen_top, width, screen_height, True)
 
         except Exception:
             pass
@@ -744,7 +783,6 @@ class ShiftChangeApp:
         return f"{part1}-{part2}"
 
     def open_telemost(self, url):
-
         if not url:
             messagebox.showwarning(
                 "Ссылка не задана",

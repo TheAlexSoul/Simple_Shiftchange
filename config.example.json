@@ -9,5 +9,7 @@
     "preferred_monitor": 0,
     "document_subfolder": "Доклады",
     "main_path_template": "{network_base}\\{year}\\{month} {month_name}\\{search_date_short}\\Доклады",
-    "reserve_path_template": "{reserve_base}\\{year}\\{month} {month_name}"
+    "reserve_path_template": "{reserve_base}\\{year}\\{month} {month_name}",
+    "skip_tests": false,
+    "show_quick_start_button": false
 }
