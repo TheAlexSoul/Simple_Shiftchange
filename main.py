@@ -1,6 +1,6 @@
 """
 Простая пересменка – GUI-программа для автоматизации подготовки к пересменке.
-Версия: 5.1 (исправлены шаблоны путей, оптимизирован поиск)
+Версия: 5.2
 
 Перед использованием:
 1. Установите Python 3.9+ (с галочкой "Add Python to PATH").
@@ -8,7 +8,8 @@
    pip install -r requirements.txt
 3. Скопируйте config.example.json в config.json и заполните актуальными данными.
 4. Для сборки в exe:
-   pyinstaller --onefile --windowed --name "Peresmenka" --icon=Peresmenka.ico --hidden-import=cv2 --collect-all opencv-python main.py
+    pip install pyinstaller
+    python -m PyInstaller --onefile --windowed --name "Peresmenka" --icon=Peresmenka.ico --hidden-import=cv2 --collect-all opencv-python main.py
 """
 
 import tkinter as tk
