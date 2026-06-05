@@ -8,7 +8,7 @@
    pip install -r requirements.txt
 3. Скопируйте config.example.json в config.json и заполните актуальными данными.
 4. Для сборки в exe:
-   pyinstaller --onefile --windowed --name "Простая_пересменка" --icon=Peresmenca.ico --hidden-import=cv2 --collect-all opencv-python main.py
+   pyinstaller --onefile --windowed --name "Peresmenka" --icon=Peresmenka.ico --hidden-import=cv2 --collect-all opencv-python main.py
 """
 
 import tkinter as tk
