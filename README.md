@@ -143,7 +143,7 @@ Peresmenka.exe --config "C:\Users\Ivanov\Documents\my_config.json"
 
 ### Сборка EXE
 
-    pyinstaller --onefile --windowed --name "Простая_пересменка" --icon=Peresmenca.ico --hidden-import=cv2 --collect-all opencv-python main.py
+    pyinstaller --onefile --windowed --name "Простая_пересменка" --icon=Peresmenka.ico --hidden-import=cv2 --collect-all opencv-python main.py
 
 После сборки исполняемый файл появится в папке dist.
 
@@ -174,7 +174,7 @@ Peresmenka.exe --config "C:\Users\Ivanov\Documents\my_config.json"
 
 ├── config.example.json # Шаблон конфигурации (скопируйте в config.json)
 
-├── Peresmenca.ico # Иконка приложения
+├── Peresmenka.ico # Иконка приложения
 
 ├── .gitignore
 
